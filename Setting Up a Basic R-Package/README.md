@@ -4,4 +4,4 @@ There are several ways to set up a R-Package, in this course we are going to use
 * [devtools](https://github.com/r-lib/devtools "devtools")
 * [roxygen2](https://github.com/klutometis/roxygen "roxygen2")
 
-
+So, before following the instructions shown in "R_Package.pdf" be sure of having install [Rtools](https://cran.rstudio.com/bin/windows/Rtools/ "Rtools") (for this check "First_Step.pdf") and the R-packages mentioned above.
