@@ -165,4 +165,29 @@ TXT%>%
   geom_bar(aes(weight=total))+
   coord_flip()
 
+# Using word clouds
 
+TXT%>%
+  mutate(angle = 45 * sample(-2:2, n(), replace = TRUE, prob = c(1, 1, 4, 1, 1)))%>%
+  ggplot(aes(label = words, size = total, angle = angle)) +
+  ggwordcloud::geom_text_wordcloud_area(rm_outside = TRUE) + # 
+  scale_size_area(max_size = 10) +
+  theme_minimal()
+
+# We can also plot following certain shapes:
+
+DIR_IMG="<replace with link>/BookIcon.png"
+DIR2SAVE="<replace with link>/BookIcon_2.png"
+
+TXT%>%
+  mutate(angle = 45 * sample(-2:2, n(), replace = TRUE, 
+                             prob = c(1, 1, 4, 1, 1)))%>%
+  ggplot(aes(label = words, size = total, angle = angle)) +
+  ggwordcloud::geom_text_wordcloud_area(
+    mask = png::readPNG(DIR_IMG),
+    rm_outside = TRUE,
+    area_corr = TRUE) + # 
+  scale_size_area(max_size = 10) +
+  theme_minimal()
+
+ggsave(DIR2SAVE)
