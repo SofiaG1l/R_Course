@@ -96,7 +96,7 @@ TF_IDF=IDF2%>%
          tf_idf2=tf2*idf,
          tf_idf3=tf3*idf)%>%
   # Now, we will arrange the value in descendent order based on the tf-idf:
-  arrange(-tf_idf1,-tf_idf2,-tf_idf3,)
+  arrange(-tf_idf1,-tf_idf2,-tf_idf3)
 
 # Are the results similar? Which tf would you use to calculate the tf-idf?
 
@@ -108,7 +108,8 @@ TF_IDF=IDF2%>%
 # Are the results similar? Which tf would you use to calculate the tf-idf?
 
 # How would you visualize the results?
-# Hint: You can use the following functions to split and arrange the plots per book:
+# Hint: Check the previous session code to visualize frequencies.
+# Hint 2: You can use the following functions to split and arrange the plots per book:
 #       * fct_reorder
 #       * facet_wrap
 
