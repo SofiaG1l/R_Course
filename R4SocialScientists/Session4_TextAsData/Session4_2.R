@@ -5,41 +5,114 @@
 rm(list = ls())
 gc()
 
-# Opening the packages
+# First, we will install all the packages that we will use during this class:
+# install.packages("janeaustenr")
+# install.packages("widyr")
+# install.packages("igraph")
+# install.packages("ggraph")
+
+# We will open the packages when we need them:
 library(tidyverse)
 library(tidytext)
 
 #### 2. Text Mining & DataViz ####
-# installed.packages("janeaustenr")
 
 # Opening Jane Austen books
 JA_BOOKS_org=janeaustenr::austen_books()
+
+# Turn the data into a tibble:
+JA_BOOKS_org=?(JA_BOOKS_org)
 
 # How would you examine the data?
 # ?(JA_BOOKS_org)
 
 # What is the structure of the data?
 
-# How would you initially process the data?
-# Hint: Extract and count the words per book:
-# JA_BOOKS=JA_BOOKS_org%>%
-#   ?(word, text) %>%
-#   count(?)
-
 #### 2.2 Word and document frequency ####
+
+#*** term frequency (tf) ***#
+
+# What are the differences between TF1, TF2, and TF3?
+
+# Raw frequencies
+TF1=JA_BOOKS%>%
+  spread(book,n,fill = 0)%>%
+  mutate(tf1=rowSums(pick(2:7), na.rm = TRUE))
+
+# Standardized frequencies by all words
+TF2=JA_BOOKS%>%
+  mutate(total= n())%>%
+  mutate(n=n/total)%>%
+  select(-total)%>%
+  spread(book,n,fill = 0)%>%
+  mutate(tf2=rowSums(pick(2:7), na.rm = TRUE))%>%
+  select(word,tf2)
+
+# Standardized frequencies by total words by book
+TF3=JA_BOOKS%>%
+  group_by(book)%>%
+  mutate(total= n())%>%
+  mutate(n=n/total)%>%
+  ungroup()%>%
+  select(-total)%>%
+  spread(book,n,fill = 0)%>%
+  mutate(tf3=rowSums(pick(2:7), na.rm = TRUE))%>%
+  select(word,tf3)
+
+#*** inverse document frequency (idf) ***#
+# Now, we will calculate the idf.
+# For this, you need the total number of documents. So, save that number in:
+
+# n_docs=??
+
+# Now, you need to calculate the idf=ln(n_docs/number of docs containing the word)
+IDF=JA_BOOKS%>%
+  # Use the function ifelse to replace n with 1 if it is bigger than 0 and 0 otherwise
+  mutate(n=??)%>%
+  # Use the function spread to turn each book into a column with the n values as elements
+  spread(?,?,fill = 0)%>%
+  # Use the function rowSums together with the function pick to add up the 
+  # number of docs containing the word
+  mutate(total=?(?, na.rm = TRUE))%>%
+  # Finaly, calculate: idf=ln(n_docs/number of docs containing the word)
+  mutate(?)
+
+# How does the data look?
+
+# Let's keep only the words and the idf:
+IDF2=IDF%>%
+  select(word,idf)
 
 #*** tf-idf ***#
 
-# Now let's calculate the tf-idf. For this, you will use the function
-# bind_tf_idf:
-# JA_BOOKS=JA_BOOKS%>%?
+# tf-idf by hand:
+TF_IDF=IDF2%>%
+  # We will merge the data frames with the different TFs and the IDF:
+  left_join(TF1)%>%
+  left_join(TF2)%>%
+  left_join(TF3)%>%
+  # Now, we will calculate the tf-idf= tf*idf:
+  mutate(tf_idf1=tf1*idf,
+         tf_idf2=tf2*idf,
+         tf_idf3=tf3*idf)%>%
+  # Now, we will arrange the value in descendent order based on the tf-idf:
+  arrange(-tf_idf1,-tf_idf2,-tf_idf3,)
+
+# Are the results similar? Which tf would you use to calculate the tf-idf?
+
+# Now let's calculate the tf-idf using the function bind_tf_idf
+# Which arguments do you need to pass?
+# JA_BOOKS=JA_BOOKS%>%
+#   ?(?)
+
+# Are the results similar? Which tf would you use to calculate the tf-idf?
 
 # How would you visualize the results?
 # Hint: You can use the following functions to split and arrange the plots per book:
 #       * fct_reorder
 #       * facet_wrap
 
-# JA_BOOKS%>%
+# ??%>%
 #   group_by(book) %>%
 #   slice_max(tf_idf, n = 15) %>%
 #   ungroup() %>%
@@ -96,8 +169,6 @@ JA_BOOKS_org=janeaustenr::austen_books()
 
 #*** Pairwise correlation ***#
 
-# install.packages("widyr")
-
 # To decrease the amount of resources used by the computer, we will only analyse
 # the book "Pride & Prejudice", but we will do it by section.
 
@@ -130,9 +201,6 @@ word_pairs <- austen_section_words %>%
 #   widyr::pairwise_cor(?)
 
 #*** Visualizing a network of bigrams with ggraph ***#
-
-# install.packages("igraph")
-# install.packages("ggraph")
 
 library(ggraph)
 
