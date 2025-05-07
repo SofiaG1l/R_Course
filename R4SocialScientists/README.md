@@ -11,8 +11,14 @@ matter if you are a qualitative researcher that has never used R, or a
 quantitative researcher that wants to learn new topics or move out of
 SPSS/STATA. You all are welcome!
 
-Please keep in mind that all the material builds on itself. For this
-workshop to make sense, you need to attend all the sessions.
+Please keep in mind that all the material builds on itself. If you are
+interested on a specific topic, then you need to attend all the previous
+sessions:
+
+<figure>
+<img src="WorkshopBuildUp.png" alt="R-Workshop Build-up" />
+<figcaption aria-hidden="true">R-Workshop Build-up</figcaption>
+</figure>
 
 ## Requirements
 
