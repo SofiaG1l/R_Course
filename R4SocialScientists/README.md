@@ -15,8 +15,9 @@ Please keep in mind that all the material builds on itself. If you are
 interested on a specific topic, then you need to attend all the previous
 sessions:
 
-<figure>
-<img src="WorkshopBuildUp.png" alt="R-Workshop Build-up" />
+<figure id="id">
+<img src="WorkshopBuildUp.png" class="class"
+style="width:50.0%;height:50.0%" alt="R-Workshop Build-up" />
 <figcaption aria-hidden="true">R-Workshop Build-up</figcaption>
 </figure>
 
