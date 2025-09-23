@@ -1,11 +1,11 @@
-# R-workshop: R for Social Scientists
+# R-Course: R for Social Scientists
 
-Welcome to the website of the “R for Social Scientists” workshop!
+Welcome to the website of the course “R for Social Scientists”!
 
-I designed this workshop series to give social scientists all that is
+I designed this course to give social scientists all that is
 necessary to start using R in their everyday work.
 
-The workshop is designed for academics in different career stages (from
+The course is designed for academics in different career stages (from
 PhD students to professors) and with different backgrounds. It does not
 matter if you are a qualitative researcher that has never used R, or a
 quantitative researcher that wants to learn new topics or move out of
