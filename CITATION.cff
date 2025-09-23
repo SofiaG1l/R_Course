@@ -1,0 +1,18 @@
+cff-version: 1
+title: "R-Course: R for Social Scientists"
+version: 1
+license: "MIT"
+type: course
+abstract: "These are the files Sofia Gil-Clavel designed to teach the R-Course: R for Social Scientists."
+message: "If you use any of them, please cite it as below."
+authors:
+  - given-names: Sofia
+    family-names: Gil-Clavel
+    affiliation: Vrije University Amsterdam
+    orcid: "https://orcid.org/0000-0003-4707-849X"
+related_identifiers:     
+    -identifier: "https://doi.org/10.5281/zenodo.17184812"
+keywords:
+  - R
+  - course
+  - social science
