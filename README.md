@@ -28,3 +28,6 @@ style="width:50.0%;height:50.0%" alt="R-Workshop Build-up" />
 Students need to bring their own laptops.
 
 Students need to have R and Rstudio installed.
+
+## Did you find it useful? Then, do not forget to cite it
+Gil-Clavel, S. (2025). R-Course: R for Social Scientists (Version 1.0) [Computer software]. https://github.com/SofiaG1l/R_Course/
