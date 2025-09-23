@@ -8,7 +8,7 @@ authors:
 title: "R-Course: R for Social Scientists"
 abstract: "These are the files Sofia Gil-Clavel designed to teach the R-Course: R for Social Scientists."
 version: 1.0
-type: "generic"
+type: manual
 identifiers:
   - type: doi
     value: 10.5281/zenodo.17184812
