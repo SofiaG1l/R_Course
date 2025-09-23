@@ -1,3 +1,5 @@
+<a href="https://doi.org/10.5281/zenodo.17184812"><img src="https://zenodo.org/badge/182802883.svg" alt="DOI"></a>
+
 # R-Course: R for Social Scientists
 
 Welcome to the website of the course “R for Social Scientists”!
