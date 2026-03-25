@@ -1,3 +1,5 @@
 *.docx
 *.pptx
 *.Rmd
+*_answer.R
+*_answers.R
