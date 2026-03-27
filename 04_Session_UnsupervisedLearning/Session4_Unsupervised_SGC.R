@@ -16,23 +16,25 @@ gc()
 library(tidyverse)
 library(ISLR2)
 
-# Bikeshare$mnth=as.integer(Bikeshare$mnth)
-# Bikeshare$weathersit=as.integer(Bikeshare$weathersit)
-# Bikeshare$hr=as.integer(Bikeshare$hr)
+Bikeshare2<-tibble(Bikeshare)
+
+# Bikeshare2$mnth=as.integer(Bikeshare2$mnth)
+# Bikeshare2$weathersit=as.integer(Bikeshare2$weathersit)
+# Bikeshare2$hr=as.integer(Bikeshare2$hr)
 
 #### 2.2 Principal Components Analysis (PCA) ####
 
-#*** The "Bikeshare" data ***#
+#*** The "Bikeshare2" data ***#
 
-# Turn the Bikeshare data into a tibble
-# Bikeshare=?
+# Turn the Bikeshare2 data into a tibble
+# Bikeshare2=?
 
 # How would you check what variables are categorical/factors?
 # Hint: Use the functions class and names
 # ?
 
 # Now, remove the categorical (factors) variables
-# Bikeshare=Bikeshare%>%
+# Bikeshare2=Bikeshare2%>%
 #   select(?)
 
 #*** Checking the correlations ***#
@@ -40,24 +42,24 @@ library(ISLR2)
 # ?(corrplot)
 
 # Use the gunction cor to calculate the correlations
-# Bikeshare_cor<-?(Bikeshare)
+# Bikeshare2_cor<-?(Bikeshare2)
 
 # To visualize the correlations, use the function "corrplot" with the 
 # parameter method="circle"
-# ?(Bikeshare_cor, ?)
+# ?(Bikeshare2_cor, ?)
 
 #*** Before applying PCA... ***#
 # Because it is undesirable for the principal components obtained to depend on 
 # an arbitrary choice of scaling, we typically scale each variable to have standard
 # deviation one before we perform PCA.
 
-Bikeshare2_STND%>%
+Bikeshare22_STND%>%
   summarise(across(everything(),mean))
 
-Bikeshare2_STND%>%
+Bikeshare22_STND%>%
   summarise(across(everything(),var))
 
-Bikeshare2_STND<-Bikeshare2%>%
+Bikeshare22_STND<-Bikeshare22%>%
   mutate(across(everything(),
                 ~ (.x -mean(.x))/sqrt(var(.x))))
 
@@ -69,7 +71,7 @@ Bikeshare2_STND<-Bikeshare2%>%
 
 # Use the function "prcomp" to calculate the principal components. Remember to 
 # standardize the variables.
-# pr.out=?(Bikeshare , ?)
+# pr.out=?(Bikeshare2 , ?)
 
 # By default, the prcomp() function centers the variables to have mean zero. 
 # By using the option scale = TRUE, we scale the variables to have standard 
@@ -94,9 +96,9 @@ View(pr.out$rotation)
 # component score vector:
 View(pr.out$x)
 
-# As you can see, the dimensions of the original data "Bikeshare" and the 
+# As you can see, the dimensions of the original data "Bikeshare2" and the 
 # principal components are the same.
-dim(Bikeshare)
+dim(Bikeshare2)
 dim(pr.out$x)
 
 #*** How much variability is explained by each principal component? ***#
@@ -125,15 +127,15 @@ round(pve*100)
 
 # ?(pr.out, ?)
 
-# Add the parameter xlabs=rep("", nrow(Bikeshare)) to keep only the arrows:
+# Add the parameter xlabs=rep("", nrow(Bikeshare2)) to keep only the arrows:
 # ?(pr.out, ?, ?)
 
 # How would you explain the arrows?
 
 #*** What variable belongs to each component? ***#
 
-Bikeshare_PCA_cor<-cor(pr.out$x,Bikeshare)
-corrplot(Bikeshare_PCA_cor, method="circle")
+Bikeshare2_PCA_cor<-cor(pr.out$x,Bikeshare2)
+corrplot(Bikeshare2_PCA_cor, method="circle")
 
 
 #### K-Means ####
@@ -186,10 +188,10 @@ scatterplot3d::scatterplot3d(x = PC$PC1, y = PC$PC2, z = PC$PC3,
 
 #*** Let's check the original data ***#
 # Add the variable cluster to the original data:
-# Bikeshare?KM=?
+# Bikeshare2?KM=?
 
 # Are there some patterns?
-# Sample=Bikeshare%>%
+# Sample=Bikeshare2%>%
 #   group_by(KM)%>%
 #   # Sample 5 rows from each cluster, use the function "sample_n"
 #   ?(?)%>%
