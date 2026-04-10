@@ -1,6 +1,7 @@
 
-## Code written by Sofia Gil-Clavel for "Session 3: R-Workshop"
-## February 21st, 2025.
+## Code written by Sofia Gil-Clavel for "Session 5: Introduction to statistics in R"
+## Created on: February 21st, 2025.
+## Updated on: April 10th, 2026.
 
 
 # Cleaning the environment
