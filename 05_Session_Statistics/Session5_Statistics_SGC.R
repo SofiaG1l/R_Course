@@ -10,6 +10,7 @@ gc()
 # Opening the packages
 library(tidyverse)
 
+
 # Let's turn our data into a tibble:
 # ChickWeight<- # Save here the tibble of the data
 
