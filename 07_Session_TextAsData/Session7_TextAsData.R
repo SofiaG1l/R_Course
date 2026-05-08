@@ -5,24 +5,50 @@
 rm(list = ls())
 gc()
 
+# install.packages("tidytext") 
+# install.packages("stringi") 
+# install.packages("SnowballC")
+# install.packages("hunspell")
+# install.packages("ggwordcloud")
+
 # Opening the packages
 library(tidyverse)
+library(stringi) 
+library(tidytext) 
 
-#### 1.1 Basic Text Handling ####
+#### 1. Basic text functions ####
+
+TXT="The weather this afternoon feels like one of those endlessly shifting spring days where soft gray clouds drift lazily across the sky between bursts of pale sunlight, a cool breeze carries the faint scent of rain through the streets and trees, and the air hovers in that uncertain balance between warmth and chill that makes people alternately reach for sunglasses, jackets, and umbrellas within the span of a single afternoon."
+
+#### Exercise 1.1 ####
+
+# 1. How many characters are in the text?
+# 2. Is the space also considered a character?
+# 3. How would you get the number of characters without considering the spaces?
+# How would you turn all the characters into lowercase?
+
+#### Exercise 1.2 ####
+# 1. How would you save each word in a vector?
+# 2. Save the vector in a tibble, remember that the result comes as a list:
+# 3. Change the name of the variable to "word".
+# 4. Use the tidyverse packages to count the number of times each word appeared in the text
+# 5. Arrange the tibble by word frequency in descending order
+
+#### 2. Basic Text Handling ####
 
 ## Opening the example text 
 
 # Use the function read.delim() to open the data in data.frame format
-# TXT=read.delim(?)
+# TXT=read.delim(?,header = FALSE)
 
-# Transform the data into a tibble
+# Save the data as a tibble
 # TXT=?
 
 # Replace the "V1" column name with "text"
 colnames(TXT)="text"
 
 # So, let's turn all the encoding to "utf-8". For this,
-# you will use the function iconv and the parameters 
+# you will use the function iconv() and the parameters 
 # from = "latin1", to = "UTF-8"
 
 # TXT=TXT%>%
@@ -30,36 +56,12 @@ colnames(TXT)="text"
 
 # What if we want to replace NON-ASCII characters with ASCII?
 
-# For this, will use the package "stringi":
-# install.packages("stringi") 
-
-# From stringi we only use the this function stri_trans_general
+# From stringi we only use the this function stri_trans_general()
 # TXT=TXT%>%
 #   mutate(text_ASCII=stringi::?(str = text_utf8, id = "ASCII"))
 
 
-#### 1.2 Basic text functions ####
-
-# Install the packages
-
-# install.packages("stringr") 
-
-# Opens the packages
-library(stringr) 
-
-# Now that all the text is plain, we can start applying some functions.
-
-# Exercise 1.2.A
-
-# function 1: What does it do?
-
-# function 2: What does it do?
-
-# function 3: What does it do?
-
-#### 1.3 Tidy Text ####
-
-library(tidytext)
+#### 3. Tidy Text ####
 
 #*** Text Data ***#
 # Let's add more information about the data file.
@@ -69,13 +71,14 @@ library(tidytext)
 #   mutate(file=?,paragraph=?)
 
 # Now turn text_ASCII into the default text column and delete the unused columns:
+# The default column needs to be called "text".
 
 # TXT=TXT%>%
 #   mutate(?)%>% 
 #   select(?)
 
 #*** Tidy Text ***#
-# To extract the words from the text, you need use the function unnest_tokens
+# To extract the words from the text, you need use the function unnest_tokens()
 # What parameters do you need to pass? Where can you check that?
 
 # TXT=TXT%>%
@@ -101,11 +104,9 @@ TXT=TXT%>%
 # How can consider those as the same?
 # One way is transforming them into their stems.
 
-# install.packages("SnowballC")
 TXT=TXT%>%
   mutate(stem_snow = SnowballC::wordStem(words))
 
-# install.packages("hunspell")
 TXT=TXT%>%
   mutate(stem_huns = hunspell::hunspell_stem(words))
 
@@ -126,8 +127,8 @@ TXT=TXT%>%
 # And delete the unused columns.
 
 # TXT=TXT%>%
-#   mutate(words=?)%>%
-#   select(?)
+#   ?(words=?)%>%
+#   ?(?)
 
 # Count the words again:
 TXT=TXT%>%
@@ -138,8 +139,9 @@ TXT=TXT%>%
 # Which words appear the most?
 # Are those words useful? 
 
-# Removing the Stop Words
-# install.packages("stopwords") 
+# Removing the Stop Words.
+# The package tidytext comes with a data frame of stopwords
+tidytext::stop_words
 
 # There are several options
 # * "SMART"    
@@ -147,29 +149,29 @@ TXT=TXT%>%
 # * "onix" 
 # * Use all of them
 
-# Choose the option you find most convenient:
-# STOPWORDS=stopwords::stop_words%>%
-#   filter(?)
-
-# Remove the words that are Stop Words
+# How can you use the stop_words data frame to remove 
+# the words that are Stop Words:
 # TXT=TXT%>%
 #   filter(?)
 
 
-#*** Visualizations ***#
+#### 4. DataViz ####
 # Plotting the most frequent words
+# 
 TXT%>%
-  arrange(desc(total))%>%
-  slice_head(n=10)%>%
+  # arrange the data frame in descending order
+  # ?(?(total))%>%
+  # keep only the first 10 rows
+  # slice_head(n=?)%>%
   ggplot(aes(x=reorder(words,total)))+
-  geom_bar(aes(weight=total))+
+  # Which geometry would you use to plot the bars
+  # ?(aes(weight=total))+
   coord_flip()
 
 # Using word clouds
 
 TXT%>%
-  mutate(angle = 45 * sample(-2:2, n(), replace = TRUE, prob = c(1, 1, 4, 1, 1)))%>%
-  ggplot(aes(label = words, size = total, angle = angle)) +
+  ggplot(aes(label = words, size = total)) +
   ggwordcloud::geom_text_wordcloud_area(rm_outside = TRUE) + # 
   scale_size_area(max_size = 10) +
   theme_minimal()
