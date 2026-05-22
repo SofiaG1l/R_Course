@@ -1,5 +1,5 @@
-## Code written by Sofia Gil-Clavel for "Session 4: R-Workshop Text as Data"
-## March 25th, 2025.
+## Code written by Sofia Gil-Clavel for "Session 8: R-Workshop Text as Data"
+## First version: March 25th, 2025.
 
 # Cleaning the environment
 rm(list = ls())
@@ -21,103 +21,45 @@ library(tidytext)
 JA_BOOKS_org=janeaustenr::austen_books()
 
 # Turn the data into a tibble:
-JA_BOOKS_org=?(JA_BOOKS_org)
+# JA_BOOKS_org=?(JA_BOOKS_org)
 
 # How would you examine the data?
 # ?(JA_BOOKS_org)
 
 # What is the structure of the data?
+# Hint: Use the function unnest_token() and count()
+
+# JA_BOOKS=JA_BOOKS_org%>%
+#   filter(!text=="") %>%
+#   ?(word, text) %>%
+#   ?(book, word, sort = TRUE)
 
 #### 2.2 Word and document frequency ####
 
-#*** term frequency (tf) ***#
-
-# What are the differences between TF1, TF2, and TF3?
-
-# Raw frequencies
-TF1=JA_BOOKS%>%
-  spread(book,n,fill = 0)%>%
-  mutate(tf1=rowSums(pick(2:7), na.rm = TRUE))
-
-# Standardized frequencies by all words
-TF2=JA_BOOKS%>%
-  mutate(total= n())%>%
-  mutate(n=n/total)%>%
-  select(-total)%>%
-  spread(book,n,fill = 0)%>%
-  mutate(tf2=rowSums(pick(2:7), na.rm = TRUE))%>%
-  select(word,tf2)
-
-# Standardized frequencies by total words by book
-TF3=JA_BOOKS%>%
-  group_by(book)%>%
-  mutate(total= n())%>%
-  mutate(n=n/total)%>%
-  ungroup()%>%
-  select(-total)%>%
-  spread(book,n,fill = 0)%>%
-  mutate(tf3=rowSums(pick(2:7), na.rm = TRUE))%>%
-  select(word,tf3)
-
-#*** inverse document frequency (idf) ***#
-# Now, we will calculate the idf.
-# For this, you need the total number of documents. So, save that number in:
-
-# n_docs=??
-
-# Now, you need to calculate the idf=ln(n_docs/number of docs containing the word)
-IDF=JA_BOOKS%>%
-  # Use the function ifelse to replace n with 1 if it is bigger than 0 and 0 otherwise
-  mutate(n=??)%>%
-  # Use the function spread to turn each book into a column with the n values as elements
-  spread(?,?,fill = 0)%>%
-  # Use the function rowSums together with the function pick to add up the 
-  # number of docs containing the word
-  mutate(total=?(?, na.rm = TRUE))%>%
-  # Finaly, calculate: idf=ln(n_docs/number of docs containing the word)
-  mutate(?)
-
-# How does the data look?
-
-# Let's keep only the words and the idf:
-IDF2=IDF%>%
-  select(word,idf)
-
-#*** tf-idf ***#
-
-# tf-idf by hand:
-TF_IDF=IDF2%>%
-  # We will merge the data frames with the different TFs and the IDF:
-  left_join(TF1)%>%
-  left_join(TF2)%>%
-  left_join(TF3)%>%
-  # Now, we will calculate the tf-idf= tf*idf:
-  mutate(tf_idf1=tf1*idf,
-         tf_idf2=tf2*idf,
-         tf_idf3=tf3*idf)%>%
-  # Now, we will arrange the value in descendent order based on the tf-idf:
-  arrange(-tf_idf1,-tf_idf2,-tf_idf3)
-
-# Are the results similar? Which tf would you use to calculate the tf-idf?
+# Save the number of book in the variable n_docs.
+# Hint: Use the functions length() and unique()
+# n_docs=?
 
 # Now let's calculate the tf-idf using the function bind_tf_idf
 # Which arguments do you need to pass?
 # JA_BOOKS=JA_BOOKS%>%
-#   ?(?)
+#   bind_tf_idf(?,?,?)
 
-# Are the results similar? Which tf would you use to calculate the tf-idf?
 
 # How would you visualize the results?
-# Hint: Check the previous session code to visualize frequencies.
+# Hint: The following is a code to visualize frequencies.
+# Modify it to plot the tf-idf by book. Fill the bars by book.
 # Hint 2: You can use the following functions to split and arrange the plots per book:
-#       * fct_reorder
-#       * facet_wrap
+#       * fct_reorder(), this one goes inside the aes().
+#       * Use facet_wrap()
 
-# ??%>%
-#   group_by(book) %>%
-#   slice_max(tf_idf, n = 15) %>%
-#   ungroup() %>%
-#   ggplot????
+JA_BOOKS%>%
+  group_by(book) %>%
+  slice_max(n, n = 15) %>%
+  ungroup() %>%
+  ggplot(aes(n, reorder(word, n))) +
+  geom_col(show.legend = FALSE) +
+  labs(x = "n", y = NULL)
 
 
 #### 2.3 Relationships between words ####
@@ -128,45 +70,73 @@ TF_IDF=IDF2%>%
 # unnest_tokens, but with different parameters. Which parameters are those?
 
 # JA_BOOKS_2gram <- JA_BOOKS_org %>%
-#   unnest_tokens(?) 
+#   unnest_tokens(?, ?, token = ?, n = ?) %>%
+#   filter(!is.na(bigram))
 
 # Are all the rows useful? What would you do to keep only the useful rows?
+# 1) Hint: Stop words
 
-# JA_BOOKS_2gram=JA_BOOKS_2gram%>%
-#   filter(?)
+# JA_BOOKS_2gram=JA_BOOKS_org%>%
+#   filter(!text=="") %>%
+#   mutate(id=row_number())%>%
+#   ?(word, text)%>%
+#   filter(!?%in%?)
+
+# 2) Hint: Stemming
+
+JA_BOOKS_2gram<-JA_BOOKS_2gram%>%
+  mutate(stem_huns = hunspell::hunspell_stem(word))
+
+# We need to unnest the vector values
+JA_BOOKS_2gram<-JA_BOOKS_2gram%>%
+  unnest_wider(stem_huns, simplify = FALSE,names_sep = "_")
+
+# Replace the column "words" with the result you found most useful, if any.
+# And delete the unused columns.
+
+# JA_BOOKS_2gram<-JA_BOOKS_2gram%>%
+#   mutate(stem_huns = ifelse(!is.na(?),?,?))%>%
+#   # remove the other columns
+#   select(-?)
+
+# JA_BOOKS_2gram<-JA_BOOKS_2gram%>%
+#   mutate(word = ifelse(!is.na(?),?,?))%>%
+#   select(-?)
+
+# Now, we can concatenate the words based on the id:
+# Hint: Use group_by() and paste0(collapse = " ")
+# JA_BOOKS_2gram<-JA_BOOKS_2gram%>%
+#   ?(?,?)%>%
+#   ?(text=paste0(?, collapse = " "))%>%
+#   ungroup()%>%
+#   select(-id)
+
+# Now we can get the bigram, i.e., the 2-gram.
+# JA_BOOKS_2gram <- JA_BOOKS_2gram %>%
+#   unnest_tokens(?, ?, ? = "ngrams", ? = 2) %>%
+#   filter(!is.na(bigram))
 
 # Now let's count their frequency
 
-# First, let's remove those bigrams where there is a Stop_Word. For this,
-# you need to use the function separate. What parameters would you use?
-# bigrams_separated <- JA_BOOKS_2gram %>%
-#   separate(?, sep = " ")
-
-# Now, you can filter out the  bigrams where there are stop_words:
-# bigrams_filtered <- bigrams_separated %>%
-#   filter(?) 
-
-# Now, you can count the bigrams:
-# bigram_counts <- bigrams_filtered %>% 
-#   group_by(book)%>%
-#   count(?)
-
+# bigram_counts<-JA_BOOKS_2gram%>%
+#   ?(book)%>%
+#   ?(bigram,sort = TRUE)
 
 #*** tf-idf for n-grams ***#
 
-# First, you need to unite the terms into a single word
-# bigram_counts=bigram_counts%>%
-#   unite(?, sep = " ")
-
 # Second, you can calculate the tf-idf
-# bigram_counts=bigram_counts%>%?
+# bigram_counts=bigram_counts%>%
+#   ?(?, ?, ?) %>%
+#   arrange(desc(tf_idf))
 
-# Now we cant plot the frequencies:
-# bigram_counts%>%
-#   group_by(book) %>%
-#   slice_max(tf_idf, n = 15) %>%
-#   ungroup() %>%
-#   ggplot???
+bigram_counts%>%
+  group_by(book) %>%
+  slice_max(tf_idf, n = 15) %>%
+  ungroup() %>%
+  ggplot(aes(tf_idf, fct_reorder(bigram, tf_idf), fill = book)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~book, ncol = 2, scales = "free") +
+  labs(x = "tf-idf", y = NULL)
 
 #*** Pairwise correlation ***#
 
@@ -183,23 +153,24 @@ austen_section_words <- JA_BOOKS_org %>%
   filter(section > 0) 
 
 # Now, we can extract the words 
-# austen_section_words=austen_section_words%>%
+# austen_section_words<-austen_section_words%>%
 #   ?(word, text)
 
 # And remove those that are Stop Words
 # austen_section_words=austen_section_words%>%
-#   filter(?)
+#   ?(!? %in% ?)
 
 # To decrease the amount of computational resources used,
 # we still need to filter for at least relatively common words.
-word_pairs <- austen_section_words %>%
+# What is the following code doing?
+word_corr <- austen_section_words %>%
   group_by(word) %>%
-  # What is the following line doing?
-  filter(n() >= 20)
+  filter(n()>= 20)
 
 # Now, we can calculate the correlations:
-# word_pairs=word_pairs%>%
-#   widyr::pairwise_cor(?)
+# Use the function pairwise_cor() from the package widyr to get the correlations
+# word_corr=word_corr%>%
+#   ?(word, section, sort = TRUE)
 
 #*** Visualizing a network of bigrams with ggraph ***#
 
@@ -209,23 +180,24 @@ library(ggraph)
 # For this, we first turn the data frame into a network.
 
 # To make the graph more readable. We will keep only 1% of the bigrams:
-# bigram_graph <- bigram_counts %>%
-#   filter(book=="Pride & Prejudice") %>%
-#   ungroup()%>%
-#   slice_max(tf_idf,prop = ?)
+bigram_graph <- bigram_counts %>%
+  filter(book=="Pride & Prejudice") %>%
+  ungroup()%>%
+  slice_max(tf_idf,prop = 0.005)
 
 # Now we will create two columns with each bigram word :
-# bigram_graph=bigram_graph%>%
-#   separate(?, sep = " ")
+bigram_graph=bigram_graph%>%
+  separate(bigram, c("word1", "word2"), sep = " ")
 
 # Finally, we will format the dataframe in the way igraph::graph_from_data_frame
 # requires it: first three columns represent source, target, edge.
-# bigram_graph=bigram_graph%>%
-#   relocate(?)%>%
-#   igraph::graph_from_data_frame()
+bigram_graph=bigram_graph%>%
+  relocate(word1,word2,tf_idf)%>%
+  igraph::graph_from_data_frame()
 
 # ggraph has a random component. Therefore, to make it reproducible, it is 
 # necessary to use the function set.seed(#), where # is any integer. 
+# What does set.seed(2017) do?
 set.seed(2017)
 
 ggraph(bigram_graph, layout = "fr") +
@@ -247,8 +219,9 @@ ggraph(bigram_graph, layout = "fr") +
 
 
 # Now, it is your turn to plot the correlations:
+set.seed(2017)
 
-# correlations_graph <- ??
+# correlations_graph <- ?
 
 ggraph(correlations_graph, layout = "fr") +
   geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE,
