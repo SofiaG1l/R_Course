@@ -1,15 +1,12 @@
 ## Code written by Sofia Gil-Clavel for "Session 5: R-Workshop Statistical Learning"
 ## May 2nd, 2025.
 
-# Cleaning the environment
-rm(list = ls())
-gc()
-
 # Installing the packages
-# installed.packages(tidymodels)
-# installed.packages(textrecipes)
-# installed.packages(discrim)
-# installed.packages(naivebayes)
+# install.packages(tidymodels)
+# install.packages(textrecipes)
+# install.packages(discrim)
+# install.packages(naivebayes)
+# install.packages(caret)
 
 #### 4. Text Classification ####
 
@@ -17,6 +14,7 @@ gc()
 rm(list = ls())
 gc()
 
+library(tidyverse)
 library(tidymodels)
 library(textrecipes)
 library(discrim)
@@ -25,8 +23,9 @@ library(naivebayes)
 #*** Preprocessing the Data ***#
 
 # Opening the data
-DIR="<Path to where you stored the data>"
-complaints <- read_csv(paste0(DIR,"/complaints.csv.gz"))
+
+complaints <- 
+  read_csv("https://raw.githubusercontent.com/EmilHvitfeldt/smltar/master/data/complaints.csv.gz")
 
 # For our first model, let’s build a binary classification model to predict 
 # whether a submitted complaint is about “Credit reporting, credit repair 
@@ -35,21 +34,26 @@ complaints <- read_csv(paste0(DIR,"/complaints.csv.gz"))
 unique(complaints$product)
 
 set.seed(1234)
-complaints2class <- complaints %>%
-  mutate(product = factor(if_else(
-    product == "Credit reporting, credit repair services, or other personal consumer reports",
-    "Credit", "Other")))
+
+# Let's move from two to three categories:
+
+# complaints2class <- complaints %>%
+#   mutate(product = factor(?(
+#     product == "Credit reporting, credit repair services, or other personal consumer reports",
+#     "Credit", "Other")))
 
 # Use the function "initial_split" to split the data into train and test data.
 # Use the variable product as strata:
-# complaints_split <- ?(complaints2class,?)
+
+# complaints_split <- ?(complaints2class,strata = ?)
 
 # Why did we use that function?
 
 # Save the data into the variables complaints_train and complaints_test, using
 # the functions training and testing respectively.
-complaints_train <- training(complaints_split)
-complaints_test <- testing(complaints_split)
+
+# complaints_train <- ?(complaints_split)
+# complaints_test <- ?(complaints_split)
 
 # Next we need to preprocess this data to prepare it for modeling; we have text 
 # data, and we need to build numeric features for machine learning from that text.
@@ -57,24 +61,40 @@ complaints_test <- testing(complaints_split)
 # We will use the function "recipe" to specify the model.
 # In this case, we will only use the independent variable consumer_complaint_narrative
 # to predict the dependent variable product:
-# complaints_rec <-recipe(? ~ ?, data = complaints_train)
+
+# complaints_rec <-recipe(? ~ ?, 
+#                         data = complaints_train)
 
 # Now, we will add steps to process the text of the complaints. For this, we 
 # will use textrecipes to handle the consumer_complaint_narrative variable.
 
-# First we tokenize the text to words with step_tokenize().
+# 1. Tokenize the text to words with step_tokenize().
 
 # complaints_rec <- complaints_rec %>%
-#   ?(consumer_complaint_narrative)
+#   step_?(consumer_complaint_narrative)
 
-# Use step_tokenfilter() to only keep the 1000 most frequent tokens, to avoid 
-# creating too many variables in our first model. 
-# complaints_rec <- complaints_rec%>%
-#   ?(consumer_complaint_narrative, ?)
+# 2. Stem
 
-# To finish, we use step_tfidf() to compute tf-idf.
+# complaints_rec <- complaints_rec %>%
+#   step_?(consumer_complaint_narrative)
+
+# 3. Stopword removal
+
+# complaints_rec <- complaints_rec %>%
+#   step_?(consumer_complaint_narrative, 
+#                  custom_stopword_source = tidytext::stop_words$word)
+
+
+# # 4. Use step_tokenfilter() to only keep the 100 most frequent tokens, to avoid 
+# #    creating too many variables in our first model. 
+# 
 # complaints_rec <- complaints_rec%>%
-#   ?(consumer_complaint_narrative)
+#   step_?(consumer_complaint_narrative, max_tokens = ?)
+
+# 5. Use step_tfidf() to compute tf-idf.
+
+# complaints_rec <- complaints_rec%>%
+#   step_?(consumer_complaint_narrative)
 
 # Now that we have a full specification of the preprocessing recipe, we can build 
 # up a tidymodels workflow() to bundle together our modeling components.
@@ -99,29 +119,31 @@ nb_spec <- naive_Bayes() %>%
 # add the naive Bayes model to our workflow, and then we can fit this workflow 
 # to our training data.
 
-# nb_fit <- complaint_wf %>%
-#   # Add the model using "add_model"
-#   ?(nb_spec) %>%
-#   # Train the model using "fit". Which data should you use?
-#   ?(data = ?)
+complaint_wf <- complaint_wf %>%
+  # Add the model using "add_model"
+  add_model(nb_spec)
 
-### Evaluating the model
+# Train the model using "fit". Which data should you use?
+  
+# nb_fit<-?(complaint_wf, data = ?)
 
-# Using Cross Validation
+#*** Evaluating the model ***#
+
+nb_pred=cbind(complaints_test[,2],predict(nb_fit, new_data = complaints_test))
+
+caret::confusionMatrix(nb_pred$product,nb_pred$.pred_class,mode="prec_recall")
+
+#*** Using Cross Validation ***#
+
 set.seed(234)
 
 # Use the function "vfold_cv" to set up the cross validate. Use 10 groups.
-# complaints_folds <- ?(complaints_train, ?)
+complaints_folds <- vfold_cv(complaints_train, 10)
 
 # Each of these splits contains information about how to create cross-validation 
 # folds from the original training data. In this example, 90% of the training data 
 # is included in each fold, and the other 10% is held out for evaluation.
 complaints_folds
-
-# Now, let's initialize the workflow:
-nb_wf <- complaint_wf %>%
-  # Now, we just add the model to the previously set-up text processing:
-  add_model(nb_spec)
 
 # In the last section, we fit one time to the training data as a whole. Now, to 
 # estimate how well that model performs, let’s fit the model many times, once to 
@@ -129,11 +151,20 @@ nb_wf <- complaint_wf %>%
 # resampled fold.
 
 # Now we use the function "fit_resamples" to start the engine:
-# nb_rs <- fit_resamples(
-#   object=?,
-#   resamples=?,
-#   control = control_resamples(save_pred = TRUE)
-# )
+
+my_metrics <- metric_set(
+  accuracy,
+  precision,
+  recall,
+  f_meas
+)
+
+nb_rs <- fit_resamples(
+  object=complaint_wf,
+  resamples=complaints_folds,
+  control = control_resamples(save_pred = TRUE),
+  metrics = my_metrics
+)
 
 # We can extract the relevant information using collect_metrics() and 
 # collect_predictions()
@@ -148,22 +179,16 @@ nb_rs_predictions <- collect_predictions(nb_rs)
 # resample individually.
 
 # What would you have to compare?
-# table(?,?)
 
-# Does the matrix make sense?
-
-# Let's visualize this:
-conf_mat_resampled(nb_rs, tidy = FALSE) %>%
-  autoplot(type = "heatmap")
+METRICS<-bind_rows(nb_rs$.metrics, .id = "id")
 
 # Let's calculate the accuracy by group:
-nb_rs_predictions%>%
+METRICS%>%
   group_by(id)%>%
-  summarise(MSE=mean(.pred_class==product))%>%
-  ggplot(aes(MSE))+
+  ggplot(aes(.estimate, .metric, color=.metric))+
   geom_boxplot()+
-  theme_minimal()+
-  coord_flip()
+  coord_flip()+
+  theme_minimal()
 
 
 

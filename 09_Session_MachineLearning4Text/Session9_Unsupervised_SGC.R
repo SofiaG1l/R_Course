@@ -6,105 +6,136 @@ rm(list = ls())
 gc()
 
 # Installing all the packages
-# installed.packages(tidytext)
-# installed.packages(textmineR)
-# installed.packages(ggwordcloud)
+# install.packages("tidytext")
+# install.packages("textrecipes")
+# install.packages("text2vec")
+# install.packages("LDAvis")
+# install.packages("tm")
+# install.packages("ggwordcloud")
+
+#### Introduction to lists ####
+
+
+
+
 
 #### Topic Modeling ####
-library(tidytext)
-library(textmineR)
-library(ggwordcloud)
 library(tm)
+library(textrecipes)
+library(text2vec)
+library(ggwordcloud)
+library(tidyverse)
 
 #*** Preparing the data ***#
+
 data("acq")
 
-# As this data comes from news articles, it contains some weird characters, such
-# as "<", ">", etc... Those characers can interfeer with the analysis. So, we 
-# will remove them.
-# Using the functions "tm_map", "content_transformer", and "gsub":
-# acq_clean <- ?(acq, ?(?), 
-#                pattern = "([^A-Za-z0-9 ])+", 
-#                replacement = "")
+ACQ<-data.frame(text=unlist(sapply(acq, `[[`, "content")), 
+                stringsAsFactors=FALSE)
 
-#*** Document-Term Matrix ***#
-# In our data, there are some terms that appear too often or too little. This can
-# cause trouble when performing the analysis. So, we will remove them.
+#*** Creating a base text recipe ***#
 
-# Create a variable "n_documents" where you store the number of documents in the 
-# corpus:
-# ?=?
+# ACQ_rec <- recipe(~ ?, data = ACQ) %>%
+#   
+#   # 1. Break text into individual words (tokens)
+#   step_?(text) %>%
+#   
+#   # 2. REMOVE STOP WORDS FIRST (while tokens are still single words)
+#   step_?(text, keep = FALSE)%>%
+#   
+#   # 3. BUILD N-GRAMS SECOND (from the remaining meaningful words)
+#   step_?(text, num_tokens = 2, min_num_tokens = 1) %>%
+#   
+#   # 4. Filter or convert to features
+#   step_?(text, max_tokens = 1000)
 
-# Now, create a variable "minDocFreq" where you will store the minimum percentage  
-# of sparse terms you want to ignore: n_document*percentage
-# minDocFreq <- ?*?
+#*** Checking the document-term matrix ***#
 
-# Now, create a variable "maxDocFreq" where you will store the maximum percentage 
-# of sparse terms you want to ignore: n_document*percentage
-# maxDocFreq <- ?*?
+# What does this command return?
+bake(prep(ACQ_rec%>%step_tf(text)), new_data = NULL)
 
-# Finally, we will use the function "DocumentTermMatrix" to create the 
-# Term-Document Matrix. For this, you need to pass the parameter "control" with 
-# the variables:
-# stopwords = FALSE
-# bounds = list(global = c(minDocFreq, maxDocFreq))
-# acq_dtm=DocumentTermMatrix(acq_clean, control = ?)
+#*** Adding LDA as a step & running the recipe ***#
 
-# Finally, save the data as a sparse matrix:
-dtm_lda <- Matrix::Matrix(as.matrix(acq_dtm), sparse = T)
+# ACQ_obj<-ACQ_rec%>%
+#   # 5. lda
+#   step_?(text, num_topics = 4)%>%
+#   prep()  
+
+# Extracting the LDA element 
+
+# ACQ_LDA<-ACQ_obj$steps[[?]]$lda_models$text
+
+# Using the LDA components 
+
+# ACQ_LDA$?(n=?)
+
+ACQ_LDA$plot()
 
 #*** 3.3 Latent Dirichlet allocation ***#
-# The burn-in iteration means that we only collecting samples starting from 
-# iteration of 4000, since the earlier iteration is still unstable and may not 
-# reflect the actual distribution of the data.
 
-# Create the variable "n_topics" to store the number of topics (clusters) you 
-# want to explore:
-# ?=?
+# There is also the option to add other LDA models:
 
-# Use the function "FitLdaModel" to fit the LDA topic model:
-# lda_news <-  ?(dtm = dtm_lda, 
-#                          k = n_topics, 
-#                          iterations = 5000,
-#                          burnin = 4000, 
-#                          calc_coherence = T)
+tokens <- word_tokenizer(tolower(ACQ$text))
+it <- itoken(tokens, ids = seq_along(ACQ$text))
+v <- create_vocabulary(it)
+v = prune_vocabulary(v, term_count_min = 10, doc_proportion_max = 0.1)
+dtm <- create_dtm(it, vocab_vectorizer(v))
+lda_model <- LDA$new(n_topics = 3)
 
-# What does each parameter do?
+ACQ_obj2 <- ACQ_rec%>%
+  # 5. lda
+  step_lda(text, lda_models = lda_model)%>%
+  prep()  
 
-#*** Checking theta ***#
-# If a term has a high value of theta, it has a high probability of that term 
-# being generated from that topic. This also indicates that the term has a high 
-# association toward a certain topic.
-lda_news$theta %>% 
-  head() %>% 
-  as.data.frame() %>% 
-  set_names(paste("Topic", 1:n_topics)) %>% 
-  rownames_to_column("document")  
+# Extracting the LDA element 
 
-#*** Checking phi ***#
-# Remember that LDA assumes that a topic is a mixture of words. The posterior 
-# probability for per-topic-per-word assignment is represented by the phi value. 
-# The sum of all phi for a topic is 1.
-lda_news$phi %>% 
-  rowSums()
+ACQ_LDA2<-ACQ_obj2$steps[[5]]$lda_models$text
 
-# To get the top 10 terms for each topic, we can use the GetTopTerms function.
-# news_word_topic <- ?(lda_news$phi, ?) %>%
-#   as.data.frame() %>% 
-#   set_names(paste("Topic", 1:n_topics))
+# Using the LDA components 
 
-cloud=news_word_topic %>% 
-  rownames_to_column("id") %>%
-  mutate(id = as.numeric(id)) %>% 
-  pivot_longer(-id, names_to = "topic", values_to = "term") %>% 
-  ggplot(aes(label = term, size = rev(id), color = topic, alpha = rev(id))) +
-  geom_text_wordcloud(seed = 123) +
-  facet_wrap(~topic, scales = "free") +
-  scale_alpha_continuous(range = c(0.4, 1)) +
-  # scale_color_manual(values = c( "dodgerblue4", "firebrick4", "darkgreen")) +
+ACQ_LDA2$get_top_words(n=10)
+
+ACQ_LDA2$plot()
+
+#*** Phi contains the probabilities ***#
+
+# Pull raw matrix and vocabulary names from the private environment
+phi_matrix_raw <- ACQ_LDA$.__enclos_env__$private$components_
+vocab_names    <- ACQ_LDA$.__enclos_env__$private$vocabulary
+
+# Format into a tidy data frame of probabilities
+rownames(phi_matrix_raw) <- paste0("Topic ", 1:nrow(phi_matrix_raw))
+colnames(phi_matrix_raw) <- vocab_names
+
+phi_matrix_probs <- t(phi_matrix_raw / rowSums(phi_matrix_raw))
+
+# 5. Filter for the top words per topic to avoid cluttering the cloud
+top_words_per_topic <- as.data.frame(phi_matrix_probs) %>%
+  tibble::rownames_to_column(var = "words") %>%
+  pivot_longer(
+    cols = -words, 
+    names_to = "topic", 
+    values_to = "probability"
+  ) %>%
+  group_by(topic) %>%
+  slice_max(probability, n = 30) %>% # Keep the top 30 words per topic
+  ungroup()
+
+# 6. Plot the faceted word clouds
+ggplot(top_words_per_topic, aes(label = words, size = probability, color = topic)) +
+  geom_text_wordcloud_area(seed = 123) +
+  scale_size_area(max_size = 15) + # Controls maximum word size
+  facet_wrap(~ topic, scales = "free") +
   theme_minimal() +
-  theme(strip.text.x = element_text(colour = "white"))
+  labs(title = "LDA Topic Word Clouds", subtitle = "Word sizes reflect topic-word probability (Phi)") +
+  theme(strip.text = element_text(face = "bold", size = 12))
 
 # Use ggsave to save the graph:
 # ggsave("<link to your folder>/topics_cloud.png",
 #        plot=cloud,width = 30,height = 20,units = "cm")
+
+
+
+
+
+
