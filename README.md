@@ -31,4 +31,4 @@ Students need to bring their own laptops.
 Students need to have R and Rstudio installed.
 
 ## Did you find it useful? Then, do not forget to cite it
-Gil-Clavel, S. (2026). R-Course: R for Social Scientists (Version 2.0) [Data set]. https://github.com/SofiaG1l/R_Course/. doi: https://doi.org/10.5281/zenodo.20828330.
+Gil-Clavel, S. (2026). R-Course: R for Social Scientists (Version 2.0). https://github.com/SofiaG1l/R_Course/. doi: https://doi.org/10.5281/zenodo.20828330.
