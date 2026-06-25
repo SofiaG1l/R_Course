@@ -8,7 +8,8 @@ I designed this course to give social scientists all that is
 necessary to start using R in their everyday work.
 
 The course is designed for academics in different career stages (from
-PhD students to professors) and with different backgrounds. It does not
+PhD students to professors) and with different backgrounds. As long as 
+you have had some experience working with dataframes then it does not
 matter if you are a qualitative researcher that has never used R, or a
 quantitative researcher that wants to learn new topics or move out of
 SPSS/STATA. You all are welcome!
@@ -30,4 +31,4 @@ Students need to bring their own laptops.
 Students need to have R and Rstudio installed.
 
 ## Did you find it useful? Then, do not forget to cite it
-Gil-Clavel, S. (2025). R-Course: R for Social Scientists (Version 1.0) [Data set]. https://github.com/SofiaG1l/R_Course/. doi: https://doi.org/10.5281/zenodo.17184812.
+Gil-Clavel, S. (2026). R-Course: R for Social Scientists (v.2). Zenodo. https://doi.org/10.5281/zenodo.20828330.
