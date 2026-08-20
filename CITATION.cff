@@ -12,6 +12,6 @@ type: dataset
 identifiers:
   - type: doi
     value: 10.5281/zenodo.20828330
-license: "MIT"
+license: "CC-BY-4.0"
 date-released: 2025-09-23
 url: "https://github.com/SofiaG1l/R_Course/"
